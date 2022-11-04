@@ -1,29 +1,35 @@
 <template>
-  <input type="text" :value="postcode" placeholder="우편번호" />
-  <input type="button" @click="handleClick()" value="우편번호 찾기" />
-  <br />
-  <input type="text" :value="address" placeholder="주소" /> <br />
-  <input type="text" ref="detail" placeholder="상세주소" />
-  <input type="text" :value="extraAddr" placeholder="참고항목" />
+  <form>
+    <input type="text" :value="postcode" placeholder="우편번호" />
+    <input type="button" @click="handleClick()" value="우편번호 찾기" />
+    <input type="text" :value="address" placeholder="주소" />
+    <input type="text" ref="detail" placeholder="상세주소" />
+    <input type="text" :value="extraAddr" placeholder="참고항목" />
+  </form>
 </template>
+<style>
+form {
+  display: grid; /* 자식 컴포넌트를 격자로 */
+  grid-template-columns: 3fr 1fr; /* 1:1 비율 */
+}
+</style>
 <script>
-import "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
-var app = new Vue({
-  // Vue 인스턴스 생성
-  el: "#app",
-  data: {
-    address: "",
-    extraAddr: "",
-    postcode: "",
+export default {
+  data() {
+    return {
+      address: "",
+      extraAddr: "",
+      postcode: "",
+    };
   },
   methods: {
     handleClick() {
       new daum.Postcode({
-        oncomplete: onComplete,
+        oncomplete: onComplete.bind(this), // 함수의 this로 컴포넌트를 보낸다.
       }).open();
     },
   },
-});
+};
 function onComplete(data) {
   // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
 
@@ -58,15 +64,15 @@ function onComplete(data) {
       extraAddr = " (" + extraAddr + ")";
     }
     // 조합된 참고항목을 해당 필드에 넣는다.
-    app.extraAddr = extraAddr;
+    this.extraAddr = extraAddr;
   } else {
-    app.extraAddr = "";
+    this.extraAddr = "";
   }
 
   // 우편번호와 주소 정보를 해당 필드에 넣는다.
-  app.postcode = data.zonecode;
-  app.address = addr;
+  this.postcode = data.zonecode;
+  this.address = addr;
   // 커서를 상세주소 필드로 이동한다.
-  app.$refs.detail.focus();
+  this.$refs.detail.focus();
 }
 </script>
